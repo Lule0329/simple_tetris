@@ -15,12 +15,20 @@ namespace simple_tetris
         int boxSize = 32;// Storleken på varje fyrkant
         int playWidth = 5;// Hur många fyrkanter som ska få plats på bredden
         int playHeight = 10;// Hur många fyrkanter som ska få plats på höjden
+        int points = 0;
+
+        List<PictureBox> boxes = new List<PictureBox>();
 
         PictureBox current = null;
 
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void CheckLines()
+        {
+
         }
 
         void addBox()
@@ -34,6 +42,7 @@ namespace simple_tetris
 
             current.BackColor = Color.Black;
             Controls.Add(current);
+            boxes.Add(current);
 
             // Säg att allt i fönstret ska ligga framför label1 så att lådorna alltid syns
             label1.SendToBack();
@@ -60,17 +69,58 @@ namespace simple_tetris
             else
             {
                 // Flytta lådan ett steg nedåt
-                if(current.Top + current.Height < label1.Height)
+                if(intersectsWithBoxes() == false && current.Top + current.Height < label1.Height)
                 {
-                    if (intersectsWithBoxes() == false)
-                    {
                         current.Top += boxSize;
-                    }
                 }
                 else
                 {
+                    // Ny lista av lådor
+                    List<PictureBox> nBoxes = new List<PictureBox>();
+                    foreach (var box in boxes)
+                    {
+                        if (box.Top == current.Top)
+                        {
+                            nBoxes.Add(box);
+                        }
+                    }
+                    
+                    //om nya listan har lika många saker i sig som bredden av spelplanen
+                    if (nBoxes.Count == playWidth)
+                    {
+                        foreach (var box in nBoxes)
+                        {
+                            Controls.Remove(box);
+                            boxes.Remove(box);
+                        }
+
+                        foreach (var box in nBoxes)
+                        {
+                            box.Top += boxSize;
+                        }
+
+                        label2.Text = $"Points: {++points}";
+                    }
+                    
                     addBox();
-                }   
+                }
+            }
+
+            if (points > 4)
+            {
+                timer1.Interval = 200;
+            }
+            else if (points > 9)
+            {
+                timer1.Interval = 150;
+            }
+            else if (points > 14)
+            {
+                timer1.Interval = 100;
+            }
+            else if (points > 19)
+            {
+                timer1.Interval = 50;
             }
         }
 
